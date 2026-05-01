@@ -22,6 +22,14 @@ from .notification import (
     get_notification_history_api
 )
 
+from .analytics import (
+    HealthTrendAnalyzer,
+    WarningStatisticsAnalyzer,
+    DataVisualizationGenerator,
+    analyze_health_trend_api,
+    analyze_warning_stats_api
+)
+
 __all__ = [
     "WarningState",
     "warning_executor_node",
@@ -35,5 +43,10 @@ __all__ = [
     "NotificationManager",
     "NotificationTemplate",
     "send_notification_api",
-    "get_notification_history_api"
+    "get_notification_history_api",
+    "HealthTrendAnalyzer",
+    "WarningStatisticsAnalyzer",
+    "DataVisualizationGenerator",
+    "analyze_health_trend_api",
+    "analyze_warning_stats_api"
 ]
