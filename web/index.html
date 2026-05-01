@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>家庭健康预警系统 - Web界面</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            borderRadius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .subtitle {
+            color: #7f8c8d;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .api-config {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .api-config label {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .api-config input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        .model-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .model-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .model-card:hover {
+            background: #e3f2fd;
+            border-color: #2196f3;
+        }
+        
+        .model-card.selected {
+            background: #e3f2fd;
+            border-color: #2196f3;
+            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.3);
+        }
+        
+        .model-id {
+            font-weight: bold;
+            color: #2196f3;
+            margin-bottom: 5px;
+        }
+        
+        .model-name {
+            color: #2c3e50;
+            font-size: 14px;
+        }
+        
+        .input-section {
+            margin-bottom: 30px;
+        }
+        
+        .input-section h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        
+        .input-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        
+        .input-field {
+            margin-bottom: 15px;
+        }
+        
+        .input-field label {
+            display: block;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        
+        .input-field input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .input-field input:focus {
+            outline: none;
+            border-color: #2196f3;
+        }
+        
+        .generate-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 30px;
+        }
+        
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+        
+        .generate-btn:active {
+            transform: translateY(0);
+        }
+        
+        .result-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+        
+        .result-section h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        
+        .warning-level {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        
+        .level-S {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .level-A {
+            background: #f39c12;
+            color: white;
+        }
+        
+        .level-B {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .level-C {
+            background: #95a5a6;
+            color: white;
+        }
+        
+        .result-item {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 5px;
+        }
+        
+        .result-item strong {
+            color: #2c3e50;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .result-item p {
+            color: #7f8c8d;
+            line-height: 1.6;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .loading.show {
+            display: block;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error {
+            background: #e74c3c;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        
+        footer {
+            text-align: center;
+            color: #7f8c8d;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🥔 家庭健康预警系统</h1>
+        <p class="subtitle">基于25个预警模型的多维度健康预警平台 | LangGraph强制验证闭环</p>
+        
+        <div class="api-config">
+            <label>API服务地址：</label>
+            <input type="text" id="apiUrl" value="http://localhost:8001" placeholder="输入API地址">
+        </div>
+        
+        <h3>选择预警模型：</h3>
+        <div class="model-selector" id="modelSelector"></div>
+        
+        <div class="input-section">
+            <h3>输入健康数据：</h3>
+            <div class="input-group" id="inputFields"></div>
+        </div>
+        
+        <button class="generate-btn" onclick="generateWarning()">生成预警</button>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>正在生成预警...</p>
+        </div>
+        
+        <div class="result-section" id="resultSection" style="display: none;">
+            <h3>预警结果：</h3>
+            <div id="warningResult"></div>
+        </div>
+        
+        <footer>
+            <p>© 2026 家庭健康预警系统 | 匠心Agent + 磐石Agent + 天工Agent + 明镜Agent</p>
+        </footer>
+    </div>
+    
+    <script>
+        const models = [
+            {id: "01", name: "血压预警", type: "单项预警"},
+            {id: "02", name: "脉压差预警", type: "单项预警"},
+            {id: "03", name: "晨峰高血压预警", type: "单项预警"},
+            {id: "04", name: "心电预警", type: "单项预警"},
+            {id: "05", name: "血氧预警", type: "单项预警"},
+            {id: "06", name: "HRV预警", type: "单项预警"},
+            {id: "07", name: "血糖预警", type: "单项预警"},
+            {id: "08", name: "血酮预警", type: "单项预警"},
+            {id: "09", name: "尿酸预警", type: "单项预警"},
+            {id: "10", name: "体温预警", type: "单项预警"},
+            {id: "11", name: "体重预警", type: "单项预警"},
+            {id: "12", name: "酮症酸中毒联合预警", type: "联合预警"},
+            {id: "13", name: "脑卒中风险联合预警", type: "联合预警"},
+            {id: "14", name: "心梗风险联合预警", type: "联合预警"},
+            {id: "15", name: "睡眠呼吸暂停联合预警", type: "联合预警"},
+            {id: "16", name: "代谢综合征联合预警", type: "联合预警"},
+            {id: "17", name: "呼吸衰竭风险联合预警", type: "联合预警"},
+            {id: "18", name: "心力衰竭风险联合预警", type: "联合预警"},
+            {id: "19", name: "低血糖昏迷风险联合预警", type: "联合预警"},
+            {id: "20", name: "高渗高血糖状态预警", type: "联合预警"},
+            {id: "21", name: "脓毒症风险联合预警", type: "联合预警"},
+            {id: "22", name: "心律失常猝死风险预警", type: "联合预警"},
+            {id: "23", name: "痛风风险联合预警", type: "联合预警"},
+            {id: "24", name: "脑卒中风险专项预警", type: "专项预警"},
+            {id: "25", name: "心梗风险专项预警", type: "专项预警"}
+        ];
+        
+        const modelInputs = {
+            "12": [
+                {name: "glucose_value", label: "血糖值（mmol/L）", type: "number", default: "15.0"},
+                {name: "ketone_value", label: "血酮值（mmol/L）", type: "number", default: "3.5"}
+            ],
+            "04": [
+                {name: "rhythm_type", label: "心律类型", type: "text", default: "房颤"},
+                {name: "heart_rate", label: "心率（次/分）", type: "number", default: "110"},
+                {name: "arrhythmia_count", label: "心律失常次数", type: "number", default: "5"}
+            ],
+            "16": [
+                {name: "sbp_value", label: "收缩压（mmHg）", type: "number", default: "135"},
+                {name: "dbp_value", label: "舒张压（mmHg）", type: "number", default: "88"},
+                {name: "fbg_value", label: "空腹血糖（mmol/L）", type: "number", default: "5.8"},
+                {name: "bmi_value", label: "BMI", type: "number", default: "26.5"},
+                {name: "tg_value", label: "甘油三酯（mmol/L）", type: "number", default: "1.8"},
+                {name: "hdl_value", label: "HDL胆固醇（mmol/L）", type: "number", default: "1.0"}
+            ]
+        };
+        
+        let selectedModel = "12";
+        
+        function initModelSelector() {
+            const selector = document.getElementById('modelSelector');
+            models.forEach(model => {
+                const card = document.createElement('div');
+                card.className = 'model-card';
+                card.dataset.id = model.id;
+                if (model.id === selectedModel) {
+                    card.classList.add('selected');
+                }
+                card.innerHTML = `
+                    <div class="model-id">模型${model.id}</div>
+                    <div class="model-name">${model.name}</div>
+                `;
+                card.onclick = () => selectModel(model.id);
+                selector.appendChild(card);
+            });
+        }
+        
+        function selectModel(modelId) {
+            selectedModel = modelId;
+            document.querySelectorAll('.model-card').forEach(card => {
+                card.classList.remove('selected');
+                if (card.dataset.id === modelId) {
+                    card.classList.add('selected');
+                }
+            });
+            updateInputFields();
+        }
+        
+        function updateInputFields() {
+            const inputGroup = document.getElementById('inputFields');
+            inputGroup.innerHTML = '';
+            
+            const inputs = modelInputs[selectedModel] || [
+                {name: "value", label: "数值", type: "number", default: ""}
+            ];
+            
+            inputs.forEach(input => {
+                const field = document.createElement('div');
+                field.className = 'input-field';
+                field.innerHTML = `
+                    <label>${input.label}</label>
+                    <input type="${input.type}" id="${input.name}" value="${input.default}" placeholder="${input.label}">
+                `;
+                inputGroup.appendChild(field);
+            });
+            
+            // 添加通用字段
+            const verifiedField = document.createElement('div');
+            verifiedField.className = 'input-field';
+            verifiedField.innerHTML = `
+                <label>数据已验证</label>
+                <input type="checkbox" id="data_verified" checked>
+            `;
+            inputGroup.appendChild(verifiedField);
+        }
+        
+        async function generateWarning() {
+            const apiUrl = document.getElementById('apiUrl').value;
+            const loading = document.getElementById('loading');
+            const resultSection = document.getElementById('resultSection');
+            const warningResult = document.getElementById('warningResult');
+            
+            // 收集输入数据
+            const inputData = {};
+            const inputs = modelInputs[selectedModel] || [{name: "value"}];
+            inputs.forEach(input => {
+                const element = document.getElementById(input.name);
+                if (element) {
+                    inputData[input.name] = parseFloat(element.value) || element.value;
+                }
+            });
+            inputData.data_verified = document.getElementById('data_verified').checked;
+            inputData.data_time = new Date().toISOString();
+            
+            // 显示加载状态
+            loading.classList.add('show');
+            resultSection.style.display = 'none';
+            
+            try {
+                const response = await fetch(`${apiUrl}/api/v1/warning/generate`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        user_id: 'web_user',
+                        model_id: selectedModel,
+                        input_data: inputData
+                    })
+                });
+                
+                const result = await response.json();
+                
+                // 显示结果
+                loading.classList.remove('show');
+                resultSection.style.display = 'block';
+                
+                const levelClass = `level-${result.warning_level}`;
+                let html = `<div class="warning-level ${levelClass}">${result.warning_level}级预警</div>`;
+                
+                if (result.warning_output) {
+                    html += `
+                        <div class="result-item">
+                            <strong>预警说明：</strong>
+                            <p>${result.warning_output.explanation || '无'}</p>
+                        </div>
+                        <div class="result-item">
+                            <strong>建议措施：</strong>
+                            <p>${result.warning_output.suggestion ? result.warning_output.suggestion.join(', ') : '无'}</p>
+                        </div>
+                        <div class="result-item">
+                            <strong>循证依据：</strong>
+                            <p>${result.warning_output.evidence || '无'}</p>
+                        </div>
+                        <div class="result-item">
+                            <strong>验证状态：</strong>
+                            <p>${result.validation_status} (评分: ${result.validation_score})</p>
+                        </div>
+                    `;
+                }
+                
+                warningResult.innerHTML = html;
+                
+            } catch (error) {
+                loading.classList.remove('show');
+                warningResult.innerHTML = `<div class="error">API调用失败：${error.message}<br>请确保API服务正在运行，地址为：${apiUrl}</div>`;
+                resultSection.style.display = 'block';
+            }
+        }
+        
+        // 初始化
+        initModelSelector();
+        updateInputFields();
+    </script>
+</body>
+</html>

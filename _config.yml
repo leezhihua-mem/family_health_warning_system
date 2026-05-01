@@ -1,0 +1,6 @@
+# GitHub Pages配置
+
+theme: jekyll-theme-cayman
+
+title: 家庭健康预警系统
+description: 基于25个预警模型的多维度健康预警平台
